@@ -6,14 +6,32 @@ function result = applyEnhancement(img, method, varargin)
     result.statsBefore = computeImageStats(img);
     result.method = method;
     result.params = params;
-    paramList = buildParamList(method, params);
-    result.enhancedImage = intensityTransform(img, method, paramList{:});
+
+    % Pilih metode enhancement berdasarkan nama
+    switch lower(method)
+        case {'negative', 'log', 'power', 'contrast', 'histogram_slide', 'histogram_stretch'}
+            % Intensity Transformation
+            paramList = buildIntensityTransformParams(method, params);
+            result.enhancedImage = intensityTransform(img, method, paramList{:});
+
+        case {'global', 'hsv', 'ycbcr'}
+            paramList = buildHistogramEqualizationParams(params);
+            result.enhancedImage = histogramEqualization(img, paramList{:});
+
+        case 'histogramequalization'
+            paramList = buildHistogramEqualizationParams(params);
+            result.enhancedImage = histogramEqualization(img, paramList{:});
+
+        otherwise
+            error('Metode tidak dikenal: %s. Gunakan: negative, log, power, contrast, histogram_slide, histogram_stretch, global, hsv, ycbcr', method);
+    end
+
     result.statsAfter = computeImageStats(result.enhancedImage);
     result.improvement = computeImprovement(result.statsBefore, result.statsAfter);
 end
 
 
-% Parse parameter input
+% Parse parameter input menjadi struct
 function params = parseInputParams(varargin)
     params = struct();
     for i = 1:2:length(varargin)
@@ -27,7 +45,7 @@ end
 
 
 % Bangun parameter list untuk intensityTransform
-function paramList = buildParamList(method, params)
+function paramList = buildIntensityTransformParams(method, params)
     paramList = {};
     switch lower(method)
         case {'log', 'power'}
@@ -46,6 +64,23 @@ function paramList = buildParamList(method, params)
                 paramList{end+1} = params.offset;
             end
     end
+end
+
+
+% Bangun parameter list untuk histogramEqualization
+function paramList = buildHistogramEqualizationParams(params)
+    paramList = {};
+
+    % Mode: global, hsv, atau ycbcr
+    mode = 'global';
+    if isfield(params, 'mode')
+        mode = lower(params.mode);
+    elseif isfield(params, 'Mode')
+        mode = lower(params.Mode);
+    end
+
+    paramList{end+1} = 'mode';
+    paramList{end+1} = mode;
 end
 
 

@@ -26,7 +26,14 @@ function stats = computeImageStats(img)
     stats.dynamicRange = stats.max - stats.min;
 
     % Hitung histogram untuk entropi
-    [counts] = computeHistogramLocal(img);
+    if stats.isRGB
+        % Konversi ke grayscale dulu untuk histogram representatif
+        grayForHist = gray;
+        [counts] = computeHistogramLocal(grayForHist);
+    else
+        grayForHist = gray;
+        [counts] = computeHistogramLocal(grayForHist);
+    end
 
     % Hitung probabilitas
     totalPixels = sum(counts);

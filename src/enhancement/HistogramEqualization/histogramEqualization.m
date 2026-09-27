@@ -159,25 +159,6 @@ function result = equalizeYCbCr(img)
 end
 
 
-% Hitung histogram untuk satu channel
-function counts = computeHistogramChannel(channel)
-    channel = double(channel);
-    channel = round(channel);
-    channel = max(0, min(255, channel));
-
-    [m, n] = size(channel);
-    counts = zeros(256, 1);
-
-    for i = 1:m
-        for j = 1:n
-            idx = channel(i, j) + 1;
-            idx = max(1, min(256, idx));
-            counts(idx) = counts(idx) + 1;
-        end
-    end
-end
-
-
 % Konversi RGB ke HSV
 function hsv = rgb2hsvCustom(rgb)
     r = double(rgb(:, :, 1)) / 255;
@@ -260,10 +241,10 @@ function ycbcr = rgb2ycbcrCustom(rgb)
     ycbcr(:, :, 1) = 0.299 * r + 0.587 * g + 0.114 * b;                    % Y
     ycbcr(:, :, 2) = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;          % Cb
     ycbcr(:, :, 3) = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;          % Cr
-    end
+end
 
 
-    function rgb = ycbcr2rgbCustom(ycbcr)
+function rgb = ycbcr2rgbCustom(ycbcr)
     % Konversi YCbCr ke RGB
     y = double(ycbcr(:, :, 1));
     cb = double(ycbcr(:, :, 2));
