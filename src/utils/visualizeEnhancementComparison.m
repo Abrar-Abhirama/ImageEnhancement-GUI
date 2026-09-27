@@ -48,9 +48,12 @@ end
 
 % Plot histogram untuk citra grayscale atau RGB
 function plotHistogram(img, titleStr)
-    if ndims(img) == 3 && size(img, 3) == 3
-        % Citra RGB - histogram terpisah
-        [countsR, countsG, countsB, bins] = computeHistogramLocal(img);
+    % Hitung histogram menggunakan fungsi lokal
+    [countsR, countsG, countsB] = computeHistogramLocal(img);
+
+    if ~isempty(countsG)
+        % Citra RGB - histogram terpisah (countsG tidak kosong menandakan RGB)
+        bins = 0:255;
 
         hold on;
         bar(bins, countsR, 'r', 'FaceAlpha', 0.5, 'EdgeAlpha', 0.3);
@@ -61,7 +64,8 @@ function plotHistogram(img, titleStr)
         legend('Red', 'Green', 'Blue', 'Location', 'northwest');
     else
         % Citra grayscale
-        [counts, bins] = computeHistogramLocal(img);
+        counts = countsR;
+        bins = 0:255;
         bar(bins, counts, 'k', 'FaceAlpha', 0.7);
     end
 

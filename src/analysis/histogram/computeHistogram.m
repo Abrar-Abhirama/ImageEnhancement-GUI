@@ -1,4 +1,4 @@
-% Histogram untuk Citra Grayscale atau RGB
+% Fungsi utama yang menggunakan computeHistogramChannel dari shared location
 function varargout = computeHistogram(img, varargin)
     isColored = (size(img, 3) == 3);
 
@@ -57,7 +57,7 @@ function plotRGBHistogram(countsR, countsG, countsB, bins)
 end
 
 
-% Helper functions
+% Hitung histogram RGB
 function [countsR, countsG, countsB, bins] = computeHistogramRGB(img)
     r = img(:, :, 1);
     g = img(:, :, 2);
@@ -69,22 +69,7 @@ function [countsR, countsG, countsB, bins] = computeHistogramRGB(img)
 end
 
 
-function counts = computeHistogramChannel(channel)
-    ch = double(channel);
-    ch = round(ch);
-    ch = max(0, min(255, ch));
-    [m, n] = size(ch);
-    counts = zeros(256, 1);
-    for i = 1:m
-        for j = 1:n
-            idx = ch(i, j) + 1;
-            idx = max(1, min(256, idx));
-            counts(idx) = counts(idx) + 1;
-        end
-    end
-end
-
-
+% Hitung histogram grayscale
 function [counts, bins] = computeHistogramGrayscale(img)
     img = double(img);
     img = round(img);
