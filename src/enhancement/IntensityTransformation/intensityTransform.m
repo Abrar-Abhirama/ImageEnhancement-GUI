@@ -32,6 +32,7 @@ end
 
 
 % Negasi: s = 255 - r
+% Membalik intensitas citra (brightness reversal)
 function result = transformNegative(img)
     if size(img, 3) == 3
         result = zeros(size(img));
@@ -44,31 +45,17 @@ function result = transformNegative(img)
 end
 
 
-% Log: s = c * log(1 + r)
+% Log: s = c * (log(1 + r) / log(256)) * 255
 function result = transformLog(img, c)
-    if size(img, 3) == 3
-        result = zeros(size(img));
-        for ch = 1:3
-            result(:, :, ch) = c * log(1 + img(:, :, ch));
-        end
-    else
-        result = c * log(1 + img);
-    end
-    result = rescale(result);
+    result = c * (log(1 + img) / log(256)) * 255;
+    result = max(0, min(255, result));
 end
 
 
-% Power-law: s = c * r^gamma
+% Power-law: s = c * ((r / 255)^gamma) * 255
 function result = transformPower(img, c, gamma)
-    if size(img, 3) == 3
-        result = zeros(size(img));
-        for ch = 1:3
-            result(:, :, ch) = c * (img(:, :, ch) .^ gamma);
-        end
-    else
-        result = c * (img .^ gamma);
-    end
-    result = rescale(result);
+    result = c * ((img / 255) .^ gamma) * 255;
+    result = max(0, min(255, result));
 end
 
 
@@ -116,16 +103,4 @@ end
 % Histogram Stretch: sama dengan contrast stretching
 function result = transformHistogramStretch(img)
     result = transformContrastStretching(img);
-end
-
-
-% Normalisasi ke 0-255
-function output = rescale(img)
-    mn = min(img(:));
-    mx = max(img(:));
-    if mx > mn
-        output = (img - mn) / (mx - mn) * 255;
-    else
-        output = img;
-    end
 end
