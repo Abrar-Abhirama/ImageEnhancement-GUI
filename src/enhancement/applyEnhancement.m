@@ -22,8 +22,11 @@ function result = applyEnhancement(img, method, varargin)
             paramList = buildHistogramEqualizationParams(params);
             result.enhancedImage = histogramEqualization(img, paramList{:});
 
+        case {'filter', 'spatial_filter', 'linear', 'median', 'mean', 'gaussian', 'sharpen', 'sobel', 'laplacian'}
+            result.enhancedImage = applyFilter(img, method, varargin{:});
+
         otherwise
-            error('Metode tidak dikenal: %s. Gunakan: negative, log, power, contrast, histogram_slide, histogram_stretch, global, hsv, ycbcr', method);
+            error('Metode tidak dikenal: %s. Gunakan: negative, log, power, contrast, histogram_slide, histogram_stretch, global, hsv, ycbcr, filter, linear, median', method);
     end
 
     result.statsAfter = computeImageStats(result.enhancedImage);
