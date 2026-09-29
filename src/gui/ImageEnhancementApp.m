@@ -232,7 +232,7 @@ classdef ImageEnhancementApp < matlab.apps.AppBase
                     app.LoadReferenceButton.Visible = 'off';
                     app.RefStatusLabel.Visible = 'off';
                     app.SubMethodLabel.Text = 'Transform:';
-                    app.SubMethodDropDown.Items = {'Negative', 'Log', 'Power (Gamma)', 'Contrast Stretching'};
+                    app.SubMethodDropDown.Items = {'Brightness Adjustment', 'Contrast Correction', 'Negative', 'Log', 'Power (Gamma)', 'Contrast Stretching'};
                     if ~ismember(app.SubMethodDropDown.Value, app.SubMethodDropDown.Items)
                         app.SubMethodDropDown.Value = 'Power (Gamma)';
                     end
@@ -322,6 +322,35 @@ classdef ImageEnhancementApp < matlab.apps.AppBase
                     app.CustomKernelEditField.Visible = 'off';
 
                     switch subMethod
+                        case 'Brightness Adjustment'
+                            app.Row2Grid.ColumnWidth = {'1x', 0};
+                            app.SlidersGrid.Visible = 'on';
+                            app.SubInfoLabel.Visible = 'off';
+                            app.Param1Label.Visible = 'on';
+                            app.Param1Label.Text = 'Brightness:';
+                            app.Param1Slider.Visible = 'on';
+                            app.Param1Slider.Limits = [-1, 1];
+                            app.Param1Slider.Value = 0;
+                            app.Param1EditField.Visible = 'on';
+                            app.Param1EditField.Value = 0;
+                            app.Param2Label.Visible = 'off';
+                            app.Param2Slider.Visible = 'off';
+                            app.Param2EditField.Visible = 'off';
+
+                        case 'Contrast Correction'
+                            app.Row2Grid.ColumnWidth = {'1x', 0};
+                            app.SlidersGrid.Visible = 'on';
+                            app.SubInfoLabel.Visible = 'off';
+                            app.Param1Label.Visible = 'on';
+                            app.Param1Label.Text = 'Contrast (c):';
+                            app.Param1Slider.Visible = 'on';
+                            app.Param1Slider.Limits = [0, 2];
+                            app.Param1Slider.Value = 1;
+                            app.Param1EditField.Visible = 'on';
+                            app.Param1EditField.Value = 1;
+                            app.Param2Label.Visible = 'off';
+                            app.Param2Slider.Visible = 'off';
+                            app.Param2EditField.Visible = 'off';
                         case 'Negative'
                             app.Row2Grid.ColumnWidth = {0, '1x'};
                             app.SlidersGrid.Visible = 'off';
@@ -543,6 +572,30 @@ classdef ImageEnhancementApp < matlab.apps.AppBase
                     case 'Intensity Transformation'
                         subMethod = app.SubMethodDropDown.Value;
                         switch subMethod
+                            case 'Brightness Adjustment'
+                                brightnessVal = app.Param1EditField.Value;
+                                if isempty(brightnessVal) || isnan(brightnessVal)
+                                    uialert(app.UIFigure, 'Nilai Brightness harus berupa angka antara -1 dan 1.', ...
+                                        'Parameter Tidak Valid', 'Icon', 'warning');
+                                    app.StatusLabel.Text = 'Gagal: Parameter Brightness tidak valid.';
+                                    return;
+                                end
+                                outImg = intensityTransform(app.InputImage, 'brightness_adjustment', 'brightness', brightnessVal);
+                                titleStr = sprintf('Output: Brightness Adjustment (b=%.2f)', brightnessVal);
+                                statusMsg = sprintf('Intensity Transformation (Brightness Adjustment, b=%.2f) selesai.', brightnessVal);
+
+                            case 'Contrast Correction'
+                                contrastVal = app.Param1EditField.Value;
+                                if isempty(contrastVal) || isnan(contrastVal)
+                                    uialert(app.UIFigure, 'Nilai Contrast harus berupa angka antara 0 dan 2.', ...
+                                        'Parameter Tidak Valid', 'Icon', 'warning');
+                                    app.StatusLabel.Text = 'Gagal: Parameter Contrast tidak valid.';
+                                    return;
+                                end
+                                outImg = intensityTransform(app.InputImage, 'contrast_correction', 'contrast', contrastVal);
+                                titleStr = sprintf('Output: Contrast Correction (c=%.2f)', contrastVal);
+                                statusMsg = sprintf('Intensity Transformation (Contrast Correction, c=%.2f) selesai.', contrastVal);
+                                
                             case 'Negative'
                                 outImg = intensityTransform(app.InputImage, 'negative');
                                 titleStr = 'Output: Negative';
@@ -578,7 +631,7 @@ classdef ImageEnhancementApp < matlab.apps.AppBase
                                 outImg = intensityTransform(app.InputImage, 'contrast');
                                 titleStr = 'Output: Contrast Stretching';
                                 statusMsg = 'Intensity Transformation (Contrast Stretching) selesai.';
-                                
+
                             otherwise
                                 error('Transformasi tidak dikenal: %s', subMethod);
                         end

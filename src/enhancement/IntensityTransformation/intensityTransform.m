@@ -6,6 +6,8 @@ function result = intensityTransform(img, varargin)
     addParameter(p, 'c', 1);
     addParameter(p, 'gamma', 1);
     addParameter(p, 'offset', 0.1);
+    addParameter(p, 'brightness', 0);
+    addParameter(p, 'contrast', 1);
     parse(p, img, varargin{1}, varargin{2:end});
 
     img = double(img);
@@ -23,6 +25,10 @@ function result = intensityTransform(img, varargin)
             result = transformHistogramSlide(img, p.Results.offset);
         case 'histogram_stretch'
             result = transformHistogramStretch(img);
+        case 'brightness_adjustment'
+            result = transformBrightnessAdjustment(img, p.Results.brightness);
+        case 'contrast_correction'
+            result = transformContrastCorrection(img, p.Results.contrast);
         otherwise
             error('Transformasi tidak dikenal: %s', p.Results.transformType);
     end
@@ -103,4 +109,30 @@ end
 % Histogram Stretch: sama dengan contrast stretching
 function result = transformHistogramStretch(img)
     result = transformContrastStretching(img);
+end
+
+
+% Brightness Adjustment: s = r + brightness * 255
+function result = transformBrightnessAdjustment(img, brightness)
+    brightnessVal = brightness * 255;
+    result = img + brightnessVal;
+    result = max(0, min(255, result));
+end
+
+
+% Contrast Correction: s = c * (r - mean) + mean
+function result = transformContrastCorrection(img, contrast)
+    if size(img, 3) == 3
+        result = zeros(size(img));
+        for ch = 1:3
+            channel = img(:, :, ch);
+            meanVal = mean(channel(:));
+            result(:, :, ch) = contrast * (channel - meanVal) + meanVal;
+        end
+    else
+        meanVal = mean(img(:));
+        result = contrast * (img - meanVal) + meanVal;
+    end
+
+    result = max(0, min(255, result));
 end
