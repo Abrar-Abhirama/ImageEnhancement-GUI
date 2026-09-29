@@ -9,7 +9,7 @@ function result = applyEnhancement(img, method, varargin)
 
     % Pilih metode enhancement berdasarkan nama
     switch lower(method)
-        case {'negative', 'log', 'power', 'contrast', 'histogram_slide', 'histogram_stretch'}
+        case {'brightness_adjustment', 'contrast_correction', 'negative', 'log', 'power', 'contrast', 'histogram_stretch'}
             % Intensity Transformation
             paramList = buildIntensityTransformParams(method, params);
             result.enhancedImage = intensityTransform(img, method, paramList{:});
@@ -26,7 +26,7 @@ function result = applyEnhancement(img, method, varargin)
             result.enhancedImage = applyFilter(img, method, varargin{:});
 
         otherwise
-            error('Metode tidak dikenal: %s. Gunakan: negative, log, power, contrast, histogram_slide, histogram_stretch, global, hsv, ycbcr, filter, linear, median', method);
+            error('Metode tidak dikenal: %s. Gunakan: brightness_adjustment, contrast_correction, negative, log, power, contrast, histogram_stretch, global, hsv, ycbcr, filter, linear, median', method);
     end
 
     result.statsAfter = computeImageStats(result.enhancedImage);
@@ -59,12 +59,6 @@ function paramList = buildIntensityTransformParams(method, params)
             if isfield(params, 'gamma')
                 paramList{end+1} = 'gamma';
                 paramList{end+1} = params.gamma;
-            end
-
-        case 'histogram_slide'
-            if isfield(params, 'offset')
-                paramList{end+1} = 'offset';
-                paramList{end+1} = params.offset;
             end
     end
 end

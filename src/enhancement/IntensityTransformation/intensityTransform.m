@@ -21,8 +21,6 @@ function result = intensityTransform(img, varargin)
             result = transformPower(img, p.Results.c, p.Results.gamma);
         case 'contrast'
             result = transformContrastStretching(img);
-        case 'histogram_slide'
-            result = transformHistogramSlide(img, p.Results.offset);
         case 'histogram_stretch'
             result = transformHistogramStretch(img);
         case 'brightness_adjustment'
@@ -88,21 +86,6 @@ function result = transformContrastStretching(img)
             result = img;
         end
     end
-end
-
-
-% Histogram Slide: s = r + offset * 255
-function result = transformHistogramSlide(img, offset)
-    offsetVal = offset * 255;
-    if size(img, 3) == 3
-        result = zeros(size(img));
-        for ch = 1:3
-            result(:, :, ch) = img(:, :, ch) + offsetVal;
-        end
-    else
-        result = img + offsetVal;
-    end
-    result = max(0, min(255, result));
 end
 
 

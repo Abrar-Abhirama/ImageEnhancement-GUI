@@ -38,8 +38,10 @@ transforms = {
     'power',            {'c',1,'gamma',0.5}, 'Gamma 0.5 (Bright)';
     'power',            {'c',1,'gamma',2.0}, 'Gamma 2.0 (Dark)';
     'contrast',         {},                     'Contrast Stretch';
-    'histogram_slide',  {'offset',0.15},      'Slide +';
-    'histogram_slide',  {'offset',-0.15},     'Slide -';
+    'brightness_adjustment',{'brightness',0.15},     'Brightness +';
+    'brightness_adjustment',{'brightness',-0.15},    'Brightness -';
+    'contrast_correction',   {'contrast',1.5},       'Contrast +';
+    'contrast_correction',   {'contrast',0.5},       'Contrast -';
     'histogram_stretch',{},                     'Histogram Stretch';
 };
 
