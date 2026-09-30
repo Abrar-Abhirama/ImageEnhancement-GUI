@@ -218,7 +218,11 @@ classdef ImageEnhancementApp < matlab.apps.AppBase
         function SubMethodDropDownValueChanged(app, varargin)
             selectedMethod = app.MethodDropDown.Value;
             selectedSub = app.SubMethodDropDown.Value;
-            app.updateSubMethodParams(selectedMethod, selectedSub);
+            if strcmp(selectedMethod, 'Histogram Equalization')
+                app.updateHistogramEqualizationParams(selectedSub);
+            else
+                app.updateSubMethodParams(selectedMethod, selectedSub);
+            end
         end
 
         % Update visibilitas parameter sesuai metode utama
@@ -239,16 +243,18 @@ classdef ImageEnhancementApp < matlab.apps.AppBase
                     app.updateSubMethodParams(method, app.SubMethodDropDown.Value);
 
                 case 'Histogram Equalization'
-                    app.Row1Grid.ColumnWidth = {0, '1x', 0};
-                    app.ControlsRow1Grid.Visible = 'off';
-                    app.MainInfoLabel.Visible = 'on';
-                    app.MainInfoLabel.Text = 'No parameters required.';
+                    app.Row1Grid.ColumnWidth = {'1x', 0, 0};
+                    app.ControlsRow1Grid.Visible = 'on';
+                    app.MainInfoLabel.Visible = 'off';
                     app.RefRow1Grid.Visible = 'off';
                     app.LoadReferenceButton.Visible = 'off';
                     app.RefStatusLabel.Visible = 'off';
-                    app.Row2Grid.ColumnWidth = {'1x', 0};
-                    app.SlidersGrid.Visible = 'off';
-                    app.SubInfoLabel.Visible = 'off';
+                    app.SubMethodLabel.Text = 'Mode:';
+                    app.SubMethodDropDown.Items = {'Global', 'HSV', 'YCbCr'};
+                    if ~ismember(app.SubMethodDropDown.Value, app.SubMethodDropDown.Items)
+                        app.SubMethodDropDown.Value = 'Global';
+                    end
+                    app.updateHistogramEqualizationParams(app.SubMethodDropDown.Value);
 
                 case 'Histogram Matching'
                     app.Row1Grid.ColumnWidth = {0, 0, '1x'};
@@ -484,6 +490,27 @@ classdef ImageEnhancementApp < matlab.apps.AppBase
             end
         end
 
+        % Update parameter controls untuk Histogram Equalization
+        function updateHistogramEqualizationParams(app, mode)
+            app.OptionDropDownLabel.Visible = 'off';
+            app.Col4Grid.ColumnWidth = {0, 0};
+            app.OptionDropDown.Visible = 'off';
+            app.CustomKernelEditField.Visible = 'off';
+
+            app.Row2Grid.ColumnWidth = {0, '1x'};
+            app.SlidersGrid.Visible = 'off';
+            app.SubInfoLabel.Visible = 'on';
+
+            switch lower(mode)
+                case 'global'
+                    app.SubInfoLabel.Text = 'Equalize all channels independently. Suitable for grayscale images.';
+                case 'hsv'
+                    app.SubInfoLabel.Text = 'Equalize Value channel only. Preserves hue and saturation for color images.';
+                case 'ycbcr'
+                    app.SubInfoLabel.Text = 'Equalize Luminance (Y) channel only. Preserves color while adjusting brightness.';
+            end
+        end
+
         % Sinkronisasi Slider 1 ke EditField 1
         function Param1SliderValueChanged(app, varargin)
             app.Param1EditField.Value = app.Param1Slider.Value;
@@ -637,9 +664,19 @@ classdef ImageEnhancementApp < matlab.apps.AppBase
                         end
                         
                     case 'Histogram Equalization'
-                        outImg = histogramEqualization(app.InputImage);
-                        titleStr = 'Output: Histogram Equalization';
-                        statusMsg = 'Histogram Equalization selesai.';
+                        mode = app.SubMethodDropDown.Value;
+                        % Convert mode name to lowercase for function call
+                        switch lower(mode)
+                            case 'global'
+                                modeStr = 'global';
+                            case 'hsv'
+                                modeStr = 'hsv';
+                            case 'ycbcr'
+                                modeStr = 'ycbcr';
+                        end
+                        outImg = histogramEqualization(app.InputImage, 'mode', modeStr);
+                        titleStr = sprintf('Output: Histogram Equalization (%s)', mode);
+                        statusMsg = sprintf('Histogram Equalization (%s) selesai.', mode);
                         
                     case 'Histogram Matching'
                         % 1. Validasi keberadaan Citra Referensi
